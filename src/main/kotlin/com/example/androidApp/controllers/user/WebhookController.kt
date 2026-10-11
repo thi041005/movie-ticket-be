@@ -17,12 +17,13 @@ class WebhookController(
     fun receiveWebhook(@RequestBody webhookPayload: WebhookPayload): ResponseEntity<Any> {
         return try {
             println("Webhook nhận được: $webhookPayload")
-            return ResponseEntity.ok(bookingService.processPayment(webhookPayload))
+            ResponseEntity.ok(bookingService.processPayment(webhookPayload))
         } catch (e: IllegalStateException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error" to e.message)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to e.message))
         } catch (ex: Exception) {
-            ex.printStackTrace()
-            throw RuntimeException("Xử lý thanh toán thất bại: ${ex.message}")
+            ex.printStackTrace() // in chi tiết lỗi
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to (ex.message ?: "Unknown error")))
         }
     }
 }

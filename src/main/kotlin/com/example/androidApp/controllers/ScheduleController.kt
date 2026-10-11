@@ -1,6 +1,8 @@
 package com.example.androidApp.controllers
 
 import com.example.androidApp.repositories.BookingSeatRepository
+import com.example.androidApp.repositories.MovieRevenueDTO
+import com.example.androidApp.services.RevenueService
 import com.example.androidApp.services.ShowtimeService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,8 +16,13 @@ import java.time.format.DateTimeParseException
 @RequestMapping("public")
 class SchedulingController(
     private val showtimeService: ShowtimeService,
-    private val bookingSeatRepository: BookingSeatRepository
+    private val bookingSeatRepository: BookingSeatRepository,
+    private val revenueService: RevenueService
 ) {
+    @GetMapping("/revenue-movie")
+    fun getRevenueByMovies(): ResponseEntity<List<MovieRevenueDTO>>{
+        return ResponseEntity.ok(revenueService.getMovieRevenue())
+    }
 
     @PostMapping("/schedule")
     fun schedule(@RequestBody req: ScheduleRequest): ResponseEntity<String> {

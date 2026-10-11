@@ -1,3 +1,5 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
@@ -27,7 +29,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	runtimeOnly("com.mysql:mysql-connector-j")
+	runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

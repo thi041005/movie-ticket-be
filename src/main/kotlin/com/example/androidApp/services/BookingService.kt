@@ -56,9 +56,9 @@ class BookingService(
     }
 
     fun generateVietQRUrl(total: Double, info: String): String {
-        val accNumb = "4720259259999"
+        val accNumb = "431001060003636"
         val base = "http://img.vietqr.io/image"
-        val bankCode = "MB"
+        val bankCode = "BAB"
         return "$base/$bankCode-$accNumb-print.png?amount=$total&addInfo=$info"
     }
 
@@ -102,7 +102,9 @@ class BookingService(
 
     fun genQRCode(text: String): ByteArray {
         val qrCode = QRCodeWriter()
-        val hints = mapOf(EncodeHintType.MARGIN to 1)
+        val hints = mapOf(EncodeHintType.MARGIN to 1,
+            EncodeHintType.CHARACTER_SET to "UTF-8"
+            )
         val bitMatrix: BitMatrix = qrCode.encode(text, BarcodeFormat.QR_CODE, 300, 300, hints)
 
         val width = bitMatrix.width

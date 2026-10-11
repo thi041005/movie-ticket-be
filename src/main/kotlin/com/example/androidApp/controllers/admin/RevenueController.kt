@@ -1,5 +1,6 @@
 package com.example.androidApp.controllers.admin
 
+import com.example.androidApp.repositories.MovieRevenueDTO
 import com.example.androidApp.repositories.RevenueDTO
 import com.example.androidApp.services.RevenueService
 import org.springframework.http.ResponseEntity
@@ -21,5 +22,9 @@ class RevenueController(private val revenueService: RevenueService) {
         val fromDate = LocalDate.parse(from)
         val toDate = LocalDate.parse(to)
         return ResponseEntity.ok(revenueService.getDailyRevenue(fromDate, toDate))
+    }
+    @GetMapping("/revenue-movie")
+    fun getRevenueByMovies(): ResponseEntity<List<MovieRevenueDTO>>{
+        return ResponseEntity.ok(revenueService.getMovieRevenue())
     }
 }

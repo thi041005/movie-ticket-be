@@ -1,9 +1,11 @@
 package com.example.androidApp.services
 
 import com.example.androidApp.repositories.BookingRepository
+import com.example.androidApp.repositories.MovieRevenueDTO
 import com.example.androidApp.repositories.RevenueDTO
 import org.springframework.stereotype.Service
 import org.threeten.bp.LocalDateTime
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -20,5 +22,15 @@ class RevenueService(private val bookingRepo: BookingRepository) {
             RevenueDTO(date.toString(), total)
         }
 
+    }
+    fun getMovieRevenue(): List<MovieRevenueDTO>{
+        val rawResult = bookingRepo.getRevenueByMovies()
+        return rawResult.map {
+            MovieRevenueDTO(
+                movieId = (it[0] as Int),
+                title = it[1] as String,
+                total = it[2] as Double
+            )
+        }
     }
 }

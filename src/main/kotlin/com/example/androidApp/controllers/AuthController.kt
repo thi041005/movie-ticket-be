@@ -19,7 +19,7 @@ import javax.crypto.SecretKey
 
 
 @RestController
-@RequestMapping
+@RequestMapping("auth")
 @CrossOrigin(origins = ["http://localhost:3000", "http://localhost:4200"])
 
 class AuthController(
@@ -30,25 +30,9 @@ class AuthController(
 
     private val secretKey: SecretKey = Keys.hmacShaKeyFor("your-very-secret-key-your-secret-key-here".toByteArray())
 
-    @GetMapping("/user/info")
-    fun user(): ResponseEntity<Any> {
-        // Lấy thông tin người dùng từ SecurityContextHolder
-        val authentication = SecurityContextHolder.getContext().authentication
-        val email = authentication?.principal as? String
 
-        if (email.isNullOrBlank()) {
-            return ResponseEntity.status(401).body(Message("Unauthenticated"))
-        }
 
-        // Lấy người dùng từ service của bạn
-        val user = userService.findByEmail(email)
-            ?: return ResponseEntity.status(404).body(Message("User not found"))
-
-        // Trả về thông tin người dùng
-        return ResponseEntity.ok(UserDTO(user.id, user.name, user.email, user.phone))
-    }
-
-    @PostMapping("auth/signup")
+    @PostMapping("signup")
     fun signup(@RequestBody body: RegisterDTO): ResponseEntity<Any> {
         val error = when {
             userService.existsByEmail(body.email) -> "Email đã được sử dụng!"
@@ -81,7 +65,7 @@ class AuthController(
             }
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     fun login(@RequestBody body: LoginDTO, response: HttpServletResponse): ResponseEntity<Any> {
         val user = this.userService.findByEmail(body.email)
             ?: return ResponseEntity.badRequest().body(Message("Không tồn tại người dùng!"))
@@ -114,7 +98,7 @@ class AuthController(
 
 
 
-    @GetMapping("/auth/verify")
+    @GetMapping("/verify")
     fun verify(@RequestParam token: String): ResponseEntity<Any> {
         val vToken = verificationTokenService.findByToken(token)
             ?: return ResponseEntity.badRequest().body("Token không hợp lệ")
@@ -139,7 +123,7 @@ class AuthController(
         return ResponseEntity.ok("Xác minh thành công! Tài khoản đã được kích hoạt.")
     }
 
-    @PostMapping("/auth/forgot-password")
+    @PostMapping("/forgot-password")
     fun sendOtp(@RequestBody request: ForgotPasswordRequest): ResponseEntity<String>{
         return try {
             userService.sendOtp(request.email)
@@ -148,7 +132,7 @@ class AuthController(
             ResponseEntity.status(500).body("Loi ${e.message}")
         }
     }
-    @PostMapping("/auth/reset-password")
+    @PostMapping("/reset-password")
     fun resetPassword(@RequestBody request: ResetPasswordRequest):  ResponseEntity<String>{
         return try {
             userService.resetPassword(request)

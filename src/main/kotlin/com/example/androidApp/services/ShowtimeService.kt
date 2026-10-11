@@ -106,7 +106,6 @@ class ShowtimeService(
 
                         audTimes[aud] = movieEndTime.plusMinutes(BREAK_TIME_MINUTES.toLong())
                     } else {
-                        // Nếu chưa sẵn sàng, nhảy thêm 15 phút rồi thử lại
                         audTimes[aud] = nextAvailTime.plusMinutes(BREAK_TIME_MINUTES.toLong())
                     }
                 }

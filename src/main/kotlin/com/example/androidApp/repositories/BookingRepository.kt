@@ -25,8 +25,26 @@ interface BookingRepository : JpaRepository<Booking, Int> {
         @Param("end") end: LocalDateTime,
 
     ): List<Array<Any>>
+
+
+    @Query("""
+    SELECT m.id, m.title, SUM(b.total)
+    FROM Movie m
+    JOIN Showtime s ON s.movie.id = m.id
+    JOIN Booking b ON b.showtime.id = s.id
+    WHERE b.status = 1
+    GROUP BY m.id, m.title
+    ORDER BY SUM(b.total) DESC
+""")
+    fun getRevenueByMovies(): List<Array<Any>>
+
 }
 data class RevenueDTO(
     val date: String,
+    val total: Double
+)
+data class MovieRevenueDTO(
+    val movieId: Int,
+    val title: String,
     val total: Double
 )

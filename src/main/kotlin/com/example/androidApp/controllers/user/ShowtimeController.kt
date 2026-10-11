@@ -35,7 +35,8 @@ class ShowtimeController(
         val endOfDay = localDate.atTime(LocalTime.MAX)
 
         val responseEntity = showtimeService.getShowtimesByMovieAndDate(movieId, startOfDay, endOfDay)
-        val showtimes: List<Showtime> = responseEntity.body ?: emptyList()
+        val showtimes: List<Showtime> = responseEntity.body
+            ?.filter { it.startTime.isAfter(LocalDateTime.now()) }?: emptyList()
 
         return ResponseEntity.ok(showtimes)
     }
