@@ -20,12 +20,15 @@ class MovieService(
     private val rateRepository: RateRepository
 ) {
     fun getAllMovies(): List<Movie> {
-        val movies = movieRepository.findAll().filterNot { it.deleted }
-                return movies.map { movie ->
-                    val avg = rateRepository.findAverageRatingByMovieId(movie.id) ?: 0.0
-                    movie.avg = avg
-                    movie
-                }
+        val today = LocalDate.now()
+        return movieRepository.findAll()
+            .filter { movie ->
+                !movie.deleted && (movie.endDate?.let { !it.isBefore(today) } ?: true)
+            }
+            .map { movie ->
+                movie.avg = rateRepository.findAverageRatingByMovieId(movie.id) ?: 0.0
+                movie
+            }
     }
 
     fun getMoviesByCate(id: Int): List<Movie> {
