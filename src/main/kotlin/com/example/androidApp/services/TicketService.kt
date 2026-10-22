@@ -3,7 +3,6 @@ package com.example.androidApp.services
 import com.example.androidApp.repositories.BookingRepository
 import com.example.androidApp.repositories.BookingSeatRepository
 import com.example.androidApp.repositories.TicketRepository
-import com.google.api.gax.rpc.NotFoundException
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
 
@@ -45,13 +44,13 @@ class TicketService(
     }
 
     fun getAllTicket(id: Int): List<TicketDTO> {
-        val tickets = ticketRepository.findByUserId(id)
+        val tickets = ticketRepository.findByUserIdOrderByIssuedAtDesc(id)
         if (tickets.isEmpty()) {
             throw Exception("Không tìm thấy vé nào cho người dùng có ID: $id")
         }
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        return ticketRepository.findByUserId(id).map {
+        return tickets.map {
             val formattedPayTime = it.issuedAt.format(formatter)
             val bookingId = it.booking.id
             val bookingSeats = bookingSeatRepository.findByBookingId(bookingId)

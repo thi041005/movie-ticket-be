@@ -1,0 +1,72 @@
+services:
+  # ---------------------------------------------------------------------------
+  # 1. MySQL Database Service
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: movie-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # Kiểm tra ping MySQL bằng root password cho đến khi sẵn sàng nhận connection
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # 2. Spring Boot Application Service
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: movie-backend
+    restart: unless-stopped
+    ports:
+      - "${PORT}:${PORT}"
+    # Tự động nạp toàn bộ biến trong file .env vào container
+    env_file:
+      - .env
+    environment:
+      # Ghi đè hoặc chỉ định rõ các biến môi trường cho Spring Boot
+      - PORT=${PORT}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JPA_DDL_AUTO=${JPA_DDL_AUTO}
+      - JPA_SHOW_SQL=${JPA_SHOW_SQL}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_APP_PASSWORD=${MAIL_APP_PASSWORD}
+      - SEPAY_API_KEY=${SEPAY_API_KEY}
+      - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT}
+    depends_on:
+      mysql:
+        # Bắt buộc chờ MySQL vượt qua healthcheck mới khởi động Spring Boot
+        condition: service_healthy
+    networks:
+      - app-network
+
+
+# ---------------------------------------------------------------------------
+# Mạng và Ổ đĩa lưu trữ
+# ---------------------------------------------------------------------------
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

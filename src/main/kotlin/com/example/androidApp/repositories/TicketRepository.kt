@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TicketRepository : JpaRepository<Ticket, Int> {
     fun findByBookingId(bookingId: Int): Ticket
-    fun findByUserId(userId: Int): List<Ticket>
+    fun findByUserIdOrderByIssuedAtDesc(userId: Int): List<Ticket>
+    fun existsByBookingId(bookingId: Int): Boolean
 }

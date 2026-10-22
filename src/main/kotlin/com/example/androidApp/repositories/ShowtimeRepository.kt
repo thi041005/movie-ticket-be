@@ -2,7 +2,9 @@ package com.example.androidApp.repositories
 
 import com.example.androidApp.models.Auditorium
 import com.example.androidApp.models.Showtime
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -24,4 +26,8 @@ interface ShowtimeRepository: JpaRepository<Showtime, Int> {
     fun findUpcomingShowtimeDates(movieId: Int, start: LocalDate, end: LocalDate): List<java.sql.Date>
 
     fun findByAuditorium(auditorium: Auditorium): List<Showtime>
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Showtime s WHERE s.id = :id")
+    fun findByIdForUpdate(@Param("id") id: Int): Showtime?
 }

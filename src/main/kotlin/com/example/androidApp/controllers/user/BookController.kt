@@ -51,8 +51,17 @@ data class CancelBookReq(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class WebhookPayload(
-    val content: String,
-    val transferAmount: Int,
-    val transactionDate: String
+data class SepayWebhookPayload(
+    val id: Long,                         // bắt buộc: dùng chống xử lý trùng
+    val transferAmount: Long,             // bắt buộc: Long thay vì Int cho an toàn
+    val gateway: String? = null,
+    val transactionDate: String? = null,  // "yyyy-MM-dd HH:mm:ss", giờ Việt Nam
+    val accountNumber: String? = null,
+    val code: String? = null,             // mã thanh toán SePay tự nhận diện theo prefix
+    val content: String? = null,
+    val transferType: String? = null,     // "in" hoặc "out"
+    val accumulated: Long? = null,
+    val subAccount: String? = null,
+    val referenceCode: String? = null,
+    val description: String? = null
 )

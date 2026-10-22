@@ -4,16 +4,26 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import java.nio.file.DirectoryStream
-import java.util.logging.Filter
 
 @Configuration
 @EnableWebSecurity
-class securityConfig {
+class WebSecurityConfig {
+
+    private val whiteList = arrayOf(
+        "/",
+        "/favicon.ico",
+        "/auth/**",
+        "/public/**",
+        "/sepay/**",
+        "/sw/**",
+        "/movie/**",
+        "/error/**"
+    )
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -21,24 +31,29 @@ class securityConfig {
     }
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain{
+    fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
+        return JwtAuthenticationFilter()
+    }
+
+    @Bean
+    fun securityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationFilter: JwtAuthenticationFilter
+    ): SecurityFilterChain {
         http
-            .csrf{ it.disable() }
-            .authorizeHttpRequests{ auth ->
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**", "/public/**", "/sepay/**", "/sw/**", "/movie/**", "/error/**").permitAll()
+                    .requestMatchers(*whiteList).permitAll()
                     .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
             .formLogin { it.disable() }
             .httpBasic { it.disable() }
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
-        return http.build()
-    }
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-    @Bean
-    fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-        return JwtAuthenticationFilter()
+        return http.build()
     }
 }
